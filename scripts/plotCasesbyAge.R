@@ -35,12 +35,21 @@ qplot(data=data, x=DATE, y=CASES, colour=AGEGROUP, geom="smooth",
 ggsave("cases_by_age.png", width = 7, height = 5)
 
 
-# stacked column plot of age distribution over time using raw data
+# normalized stacked column plot of age distribution over time using raw data
 data = slice(from=as.Date("2020-03-1"), to=Sys.Date()-3)
 ggplot(data=data, aes(x=DATE, y=CASES, colour=AGEGROUP, fill=AGEGROUP)) + geom_col(position = "fill") + 
   scale_color_discrete(h=c(270, 0), c=150) +
   scale_fill_discrete(h=c(270, 0), c=150)  +
   guides(color = guide_legend(reverse = TRUE), fill = guide_legend(reverse = TRUE)) +
   ylab("PROPORTION OF NEW CONFIRMED CASES") +
+  theme_hc() 
+ggsave("cases_by_age_proportions.png", width = 7, height = 5)
+
+# stacked column plot of age distribution over time using raw data on a linear scale
+ggplot(data=data, aes(x=DATE, y=CASES, colour=AGEGROUP, fill=AGEGROUP)) + geom_col() + 
+  scale_color_discrete(h=c(270, 0), c=150) +
+  scale_fill_discrete(h=c(270, 0), c=150)  +
+  guides(color = guide_legend(reverse = TRUE), fill = guide_legend(reverse = TRUE)) +
+  ylab("NUMBER OF NEW CONFIRMED CASES") +
   theme_hc() 
 ggsave("cases_by_age_stacked.png", width = 7, height = 5)
