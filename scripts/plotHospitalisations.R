@@ -72,15 +72,15 @@ ggplot(data=data_hosp_prov2, aes(x=DATE, y=TOTAL_IN)) +
   theme_hc() + theme(legend.position="bottom", # c(0.8,0.7)) 
                      axis.title.x=element_blank(),
                      axis.title.y=element_blank()) + 
-  geom_hline(yintercept = 300*4, lwd=I(0.1), lty=3) + # Hospital Contigency Plan Action Phases
-  geom_hline(yintercept = 500*4, lwd=I(0.1), lty=2) +
-  geom_hline(yintercept = 1000*4, lwd=I(0.8), lty=2) +
-  geom_hline(yintercept = 1500*4, lwd=I(0.8), lty=1) +
-  geom_hline(yintercept = 2000*4, lwd=I(1.2), lty=1) +
+  geom_hline(yintercept = 300*5, lwd=I(0.1), lty=3) + # Hospital Contigency Plan Action Phases
+  geom_hline(yintercept = 500*5, lwd=I(0.1), lty=2) +
+  geom_hline(yintercept = 1000*5, lwd=I(0.8), lty=2) +
+  geom_hline(yintercept = 1500*5, lwd=I(0.8), lty=1) +
+  geom_hline(yintercept = 2000*5, lwd=I(1.2), lty=1) +
   labs(title = "HOSPITALISED COVID PATIENTS (IC+NON-IC) IN BELGIUM",
        subtitle = "with Hospital Contigency Plan Action Phases (HTSC)") +
   geom_text(data=data.frame(x=as.Date(c("2020-07-1")),
-                            y=c(300*4,500*4,1000*4,1500*4,2000*4),
+                            y=c(300*5,500*5,1000*5,1500*5,2000*5),
                             label=c("phase 0","phase 1A","phase 1B","phase 2A","phase 2B")), 
             aes(x=x, y=y, label=label, vjust=-0.4))
 ggsave("hospitalisations_by_province_stacked.png", width = 8, height = 6)
