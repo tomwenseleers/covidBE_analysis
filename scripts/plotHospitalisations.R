@@ -1,4 +1,7 @@
 # PLOTS OF HOSPITALISATIONS & EXTRAPOLATIONS ####
+# author: Tom Wenseleers
+# Date last modified: 2020-10-23
+
 # stacked column plot of hospitalisations over time in different provinces on a linear scale
 
 # hospit_byprovince = function(from=as.Date("2020-07-1"), 
