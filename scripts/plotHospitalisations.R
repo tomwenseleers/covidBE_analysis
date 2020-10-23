@@ -51,13 +51,20 @@ colnames(preds_totalinicu)[3:5]=c("TOTAL_IN_ICU_SMOOTH","TOTAL_IN_ICU_SMOOTH_LCL
 preds_totalinicu = data.frame(DATE=as.Date(preds_totalinicu$DATE_NUM, origin="1970-01-01"), preds_totalinicu)
 data_hosp_prov2 = merge(data_hosp_prov2, preds_totalinicu, by=c("DATE","PROVINCE"), all=TRUE)
 
+data_hosp_prov_total = aggregate(data_hosp_prov2$TOTAL_IN_SMOOTH,by=list(data_hosp_prov2$DATE),FUN=sum)
+data_hosp_prov_total[which(data_hosp_prov_total$x>10000)[1],] 
+# by 2nd of nov FASE 2B of 10 000 hospitalised Covid patients would be exceeded
+data_hosp_prov_total_icu = aggregate(data_hosp_prov2$TOTAL_IN_ICU_SMOOTH,by=list(data_hosp_prov2$DATE),FUN=sum)
+data_hosp_prov_total_icu[which(data_hosp_prov_total_icu$x>2000)[1],] 
+# by 5th of nov FASE 2B of 2000 hospitalised Covid patients would be exceeded
+
 data_hosp_prov2$DATE_NUM = as.numeric(data_hosp_prov2$DATE)
 data_hosp_prov2$EXTRAPOLATED = relevel(factor(ifelse(data_hosp_prov2$DATE_NUM>=max(data_hosp_prov$DATE_NUM),"yes","no")),ref="no")
 data_hosp_prov2$TOTAL_IN[is.na(data_hosp_prov2$TOTAL_IN)] = 0 
 data_hosp_prov2$TOTAL_IN_ICU[is.na(data_hosp_prov2$TOTAL_IN_ICU)] = 0 
 
 # plot of total nr of hospitalised patients
-plot_hosp = ggplot(data=data_hosp_prov2, aes(x=DATE, y=TOTAL_IN)) + 
+plot_hosp = ggplot(data=data_hosp_prov2, aes(x=DATE, y=TOTAL_IN+1)) + 
   geom_area(aes(y=TOTAL_IN_SMOOTH, colour=NULL, fill=PROVINCE, alpha=EXTRAPOLATED)) +
   scale_alpha_manual(guide=FALSE, values=c(0,0.5)) +
   geom_area(aes(lwd=I(1.2), colour=NULL, fill=PROVINCE), position="stack") + 
@@ -70,8 +77,8 @@ plot_hosp = ggplot(data=data_hosp_prov2, aes(x=DATE, y=TOTAL_IN)) +
   theme_hc() + theme(legend.position="bottom", # c(0.8,0.7)) 
                      axis.title.x=element_blank(),
                      axis.title.y=element_blank()) + 
-  geom_hline(yintercept = 300*5, lwd=I(0.1), lty=3) + # Hospital Contigency Plan Action Phases
-  geom_hline(yintercept = 500*5, lwd=I(0.1), lty=2) +
+  geom_hline(yintercept = 300*5, lwd=I(0.5), lty=3) + # Hospital Contigency Plan Action Phases
+  geom_hline(yintercept = 500*5, lwd=I(0.5), lty=2) +
   geom_hline(yintercept = 1000*5, lwd=I(0.8), lty=2) +
   geom_hline(yintercept = 1500*5, lwd=I(0.8), lty=1) +
   geom_hline(yintercept = 2000*5, lwd=I(1.2), lty=1) +
@@ -82,7 +89,7 @@ plot_hosp = ggplot(data=data_hosp_prov2, aes(x=DATE, y=TOTAL_IN)) +
                             label=c("phase 0","phase 1A","phase 1B","phase 2A","phase 2B")), 
             aes(x=x, y=y, label=label, vjust=-0.4))
 plot_hosp
-ggsave("hospitalisations_by_province_stacked.png", width = 8, height = 6)
+ggsave("hospitalisations_by_province_stacked.png", width = 7, height = 5)
 
 # plot of total nr of patients at ICU
 plot_icu = ggplot(data=data_hosp_prov2, aes(x=DATE, y=TOTAL_IN_ICU)) + 
@@ -98,8 +105,8 @@ plot_icu = ggplot(data=data_hosp_prov2, aes(x=DATE, y=TOTAL_IN_ICU)) +
   theme_hc() + theme(legend.position="bottom", # c(0.8,0.7)) 
                      axis.title.x=element_blank(),
                      axis.title.y=element_blank()) +
-  geom_hline(yintercept = 300, lwd=I(0.1), lty=3) + # Hospital Contigency Plan Action Phases
-  geom_hline(yintercept = 500, lwd=I(0.1), lty=2) +
+  geom_hline(yintercept = 300, lwd=I(0.5), lty=3) + # Hospital Contigency Plan Action Phases
+  geom_hline(yintercept = 500, lwd=I(0.5), lty=2) +
   geom_hline(yintercept = 1000, lwd=I(0.8), lty=2) +
   geom_hline(yintercept = 1500, lwd=I(0.8), lty=1) +
   geom_hline(yintercept = 2000, lwd=I(1.2), lty=1) +
@@ -110,7 +117,8 @@ plot_icu = ggplot(data=data_hosp_prov2, aes(x=DATE, y=TOTAL_IN_ICU)) +
                             label=c("phase 0","phase 1A","phase 1B","phase 2A","phase 2B")), 
             aes(x=x, y=y, label=label, vjust=-0.4))
 plot_icu
-ggsave("ICU_by_province_stacked.png", width = 8, height = 6)
+ggsave("ICU_by_province_stacked.png", width = 7, height = 5)
 
-ggarrange(plot_host, plot_icu, ncol=1, common.legend=TRUE)
-ggsave("hospitalisations_ICU_by_province_stacked.png", width=8, height=12)
+library(ggpubr)
+ggarrange(plot_hosp, plot_icu, ncol=1, common.legend=TRUE, legend="bottom")
+ggsave("hospitalisations_ICU_by_province_stacked.png", width=7, height=10)
