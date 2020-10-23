@@ -29,8 +29,6 @@ fit_totalin = gam(TOTAL_IN ~ s(DATE_NUM,by=PROVINCE,bs="ad")+PROVINCE+WEEKDAY,
                   family=poisson, data=data_hosp_prov) 
 # we would also contemplate gamm model with correlation=corAR1() or corAR1(form = ~ 1 | PROVINCE) or
 # a Poisson GLM with TOTAL_IN ~ ns(DATE_NUM,df=20)*PROVINCE+WEEKDAY
-fit_totalin = gam(TOTAL_IN ~ s(DATE_NUM,by=PROVINCE,bs="ad")+PROVINCE+WEEKDAY, 
-                  family=poisson, data=data_hosp_prov) 
 fit_totalinicu = gam(TOTAL_IN_ICU ~ s(DATE_NUM,by=PROVINCE,bs="ad")+PROVINCE+WEEKDAY, 
                   family=poisson, data=data_hosp_prov) 
 # calculate expected marginal means over average weekday + make extrapolations
@@ -59,7 +57,7 @@ data_hosp_prov2$TOTAL_IN[is.na(data_hosp_prov2$TOTAL_IN)] = 0
 data_hosp_prov2$TOTAL_IN_ICU[is.na(data_hosp_prov2$TOTAL_IN_ICU)] = 0 
 
 # plot of total nr of hospitalised patients
-ggplot(data=data_hosp_prov2, aes(x=DATE, y=TOTAL_IN)) + 
+plot_hosp = ggplot(data=data_hosp_prov2, aes(x=DATE, y=TOTAL_IN)) + 
   geom_area(aes(y=TOTAL_IN_SMOOTH, colour=NULL, fill=PROVINCE, alpha=EXTRAPOLATED)) +
   scale_alpha_manual(guide=FALSE, values=c(0,0.5)) +
   geom_area(aes(lwd=I(1.2), colour=NULL, fill=PROVINCE), position="stack") + 
@@ -83,10 +81,11 @@ ggplot(data=data_hosp_prov2, aes(x=DATE, y=TOTAL_IN)) +
                             y=c(300*5,500*5,1000*5,1500*5,2000*5),
                             label=c("phase 0","phase 1A","phase 1B","phase 2A","phase 2B")), 
             aes(x=x, y=y, label=label, vjust=-0.4))
+plot_hosp
 ggsave("hospitalisations_by_province_stacked.png", width = 8, height = 6)
 
 # plot of total nr of patients at ICU
-ggplot(data=data_hosp_prov2, aes(x=DATE, y=TOTAL_IN_ICU)) + 
+plot_icu = ggplot(data=data_hosp_prov2, aes(x=DATE, y=TOTAL_IN_ICU)) + 
   geom_area(aes(y=TOTAL_IN_ICU_SMOOTH, colour=NULL, fill=PROVINCE, alpha=EXTRAPOLATED)) +
   scale_alpha_manual(guide=FALSE, values=c(0,0.5)) +
   geom_area(aes(lwd=I(1.2), colour=NULL, fill=PROVINCE), position="stack") + 
@@ -110,4 +109,8 @@ ggplot(data=data_hosp_prov2, aes(x=DATE, y=TOTAL_IN_ICU)) +
                             y=c(300,500,1000,1500,2000),
                             label=c("phase 0","phase 1A","phase 1B","phase 2A","phase 2B")), 
             aes(x=x, y=y, label=label, vjust=-0.4))
+plot_icu
 ggsave("ICU_by_province_stacked.png", width = 8, height = 6)
+
+ggarrange(plot_host, plot_icu, ncol=1, common.legend=TRUE)
+ggsave("hospitalisations_ICU_by_province_stacked.png", width=8, height=12)
