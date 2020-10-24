@@ -28,11 +28,11 @@ library(splines)
 data_hosp_prov$DATE = as.Date(data_hosp_prov$DATE)
 data_hosp_prov$DATE_NUM = as.numeric(data_hosp_prov$DATE)
 data_hosp_prov$WEEKDAY = as.factor(weekdays(as.Date(data_hosp_prov$DATE)))
-fit_totalin = gam(TOTAL_IN ~ s(DATE_NUM,by=PROVINCE,bs="ad")+PROVINCE+WEEKDAY, 
+fit_totalin = gam(TOTAL_IN ~ s(DATE_NUM, by=PROVINCE, bs="ad", m=c(3,2,1,0)) + PROVINCE + WEEKDAY, # or m=NA for default
                   family=poisson, data=data_hosp_prov) 
-# we would also contemplate gamm model with correlation=corAR1() or corAR1(form = ~ 1 | PROVINCE) or
+# we could also contemplate gamm model with correlation=corAR1() or corAR1(form = ~ 1 | PROVINCE) or
 # a Poisson GLM with TOTAL_IN ~ ns(DATE_NUM,df=20)*PROVINCE+WEEKDAY
-fit_totalinicu = gam(TOTAL_IN_ICU ~ s(DATE_NUM,by=PROVINCE,bs="ad")+PROVINCE+WEEKDAY, 
+fit_totalinicu = gam(TOTAL_IN_ICU ~ s(DATE_NUM,by=PROVINCE,bs="ad", m=c(3,2,1,0))+PROVINCE+WEEKDAY, # or m=NA for default
                   family=poisson, data=data_hosp_prov) 
 # calculate expected marginal means over average weekday + make extrapolations
 library(emmeans)
@@ -55,11 +55,11 @@ preds_totalinicu = data.frame(DATE=as.Date(preds_totalinicu$DATE_NUM, origin="19
 data_hosp_prov2 = merge(data_hosp_prov2, preds_totalinicu, by=c("DATE","PROVINCE"), all=TRUE)
 
 data_hosp_prov_total = aggregate(data_hosp_prov2$TOTAL_IN_SMOOTH,by=list(data_hosp_prov2$DATE),FUN=sum)
-data_hosp_prov_total[which(data_hosp_prov_total$x>10000)[1],] 
-# by 2nd of nov FASE 2B of 10 000 hospitalised Covid patients would be exceeded
+data_hosp_prov_total[which(data_hosp_prov_total$x>14000)[1],] 
+# by 3d of Nov PHASE 2B of 14 000 hospitalised Covid patients could be exceeded
 data_hosp_prov_total_icu = aggregate(data_hosp_prov2$TOTAL_IN_ICU_SMOOTH,by=list(data_hosp_prov2$DATE),FUN=sum)
 data_hosp_prov_total_icu[which(data_hosp_prov_total_icu$x>2000)[1],] 
-# by 5th of nov FASE 2B of 2000 hospitalised Covid patients would be exceeded
+# by 4th of Nov FASE 2B of 2000 hospitalised Covid patients would be exceeded
 
 data_hosp_prov2$DATE_NUM = as.numeric(data_hosp_prov2$DATE)
 data_hosp_prov2$EXTRAPOLATED = relevel(factor(ifelse(data_hosp_prov2$DATE_NUM>=max(data_hosp_prov$DATE_NUM),"yes","no")),ref="no")
