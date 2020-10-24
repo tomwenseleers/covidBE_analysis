@@ -32,6 +32,8 @@ fit_totalin = gam(TOTAL_IN ~ s(DATE_NUM, by=PROVINCE, bs="ad", m=c(3,2,1,0)) + P
                   family=poisson, data=data_hosp_prov) 
 # we could also contemplate gamm model with correlation=corAR1() or corAR1(form = ~ 1 | PROVINCE) or
 # a Poisson GLM with TOTAL_IN ~ ns(DATE_NUM,df=20)*PROVINCE+WEEKDAY
+# see https://fromthebottomoftheheap.net/2020/06/03/extrapolating-with-gams/ for 
+# some nice tests on extrapolating with GAMs
 fit_totalinicu = gam(TOTAL_IN_ICU ~ s(DATE_NUM,by=PROVINCE,bs="ad", m=c(3,2,1,0))+PROVINCE+WEEKDAY, # or m=NA for default
                   family=poisson, data=data_hosp_prov) 
 # calculate expected marginal means over average weekday + make extrapolations
