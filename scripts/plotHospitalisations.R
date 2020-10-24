@@ -72,6 +72,7 @@ plot_hosp = ggplot(data=data_hosp_prov2, aes(x=DATE, y=TOTAL_IN+1)) +
   scale_alpha_manual(guide=FALSE, values=c(0,0.5)) +
   geom_area(aes(lwd=I(1.2), colour=NULL, fill=PROVINCE), position="stack") + 
   # facet_wrap(~PROVINCE, nrow=2) +
+  # scale_y_log10() +
   scale_color_discrete("", h=c(270, 0), c=150) +
   scale_fill_discrete("", h=c(270, 0), c=150)  +
   scale_x_continuous(breaks=as.Date(c("2020-03-01","2020-04-01","2020-05-01","2020-06-01","2020-07-01","2020-08-01","2020-09-01","2020-10-01","2020-11-01")),
@@ -83,12 +84,12 @@ plot_hosp = ggplot(data=data_hosp_prov2, aes(x=DATE, y=TOTAL_IN+1)) +
   geom_hline(yintercept = 300*5, lwd=I(0.5), lty=3) + # Hospital Contigency Plan Action Phases
   geom_hline(yintercept = 500*5, lwd=I(0.5), lty=2) +
   geom_hline(yintercept = 1000*5, lwd=I(0.8), lty=2) +
-  geom_hline(yintercept = 1500*5, lwd=I(0.8), lty=1) +
-  geom_hline(yintercept = 2000*5, lwd=I(1.2), lty=1) +
+  geom_hline(yintercept = 1500*7, lwd=I(0.8), lty=1) +
+  geom_hline(yintercept = 2000*7, lwd=I(1.2), lty=1) +
   labs(title = "HOSPITALISED COVID PATIENTS (IC+NON-IC) IN BELGIUM",
        subtitle = "with Hospital Contigency Plan Action Phases (HTSC)") +
   geom_text(data=data.frame(x=as.Date(c("2020-07-1")),
-                            y=c(300*5,500*5,1000*5,1500*5,2000*5),
+                            y=c(300*5,500*5,1000*5,1500*7,2000*7),
                             label=c("phase 0","phase 1A","phase 1B","phase 2A","phase 2B")), 
             aes(x=x, y=y, label=label, vjust=-0.4))
 plot_hosp

@@ -24,9 +24,11 @@ slice = function(from=as.Date("2020-07-1"),
 
 
 
+data_casesage = read.csv("https://epistat.sciensano.be/Data/COVID19BE_CASES_AGESEX.csv", encoding="UTF-8")
+
 # increase of confirmed nr of cases (loess smoothed) in different age categories over time
 library(ggthemes)
-data = slice(from=as.Date("2020-07-1"), to=Sys.Date()-3)
+data = slice(from=as.Date("2020-03-1"), to=Sys.Date()-3)
 qplot(data=data, x=DATE, y=CASES, colour=AGEGROUP, geom="smooth", 
       method="loess", # or method="gam", formula = y ~ s(x, bs = "cs"),
       se=FALSE, lwd=I(1.2)) + scale_y_log10() +
