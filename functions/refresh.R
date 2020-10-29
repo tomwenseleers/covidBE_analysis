@@ -17,7 +17,8 @@ refresh <- function(name, file,
                     loc = "https://epistat.sciensano.be/Data/", 
                     suffix = ".csv",dir = "Data",
                     force = FALSE,
-        process = function(x) x ){
+        process = function(x) x ) {
+  # stop()
   
   oldfile <- grep(name,dir(dir), value = TRUE)
   link <- file.path(loc,file)
@@ -36,7 +37,7 @@ refresh <- function(name, file,
   if(go || force){
     thefile <- stamp(name)
     tmp <- tryCatch(
-      read.csv(link, encoding = "UTF-8", fileEncoding = "UTF-8"),
+      read.csv(link, encoding = "UTF-8"),
       error = function(e){}, warning = function(w){
         stop(paste("The data from",link,"could not be downloaded. The server of epistat might be temporarily down. Check whether you can access\nhttps://epistat.wiv-isp.be/Covid/"),
            call. = FALSE)
@@ -44,11 +45,10 @@ refresh <- function(name, file,
     )
     
     write.csv(tmp, file = file.path(dir,thefile), 
-              row.names = FALSE, 
-              fileEncoding = "UTF-8")
+              row.names = FALSE)
   } else {
-    tmp <- read.csv(file.path(dir,oldfile), encoding = "UTF-8", fileEncoding = "UTF-8")
+    tmp <- read.csv(file.path(dir,oldfile))
   }
-  tmp <- process(tmp)
+  tmp <- process(tmp) # this removes Liège
   return(tmp)
 }

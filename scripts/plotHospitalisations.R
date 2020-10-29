@@ -4,24 +4,25 @@
 
 # stacked column plot of hospitalisations over time in different provinces on a linear scale
 
-# hospit_byprovince = function(from=as.Date("2020-07-1"), 
-#                              to=Sys.Date()) { 
-#   from = as.Date(from)
-#   to = as.Date(to)
-#   df = rawhospit %>%
-#     mutate(DATE = as.Date(DATE)) %>%
-#     filter(#REGION != "Belgium", # & PROVINCE != "All",
-#       between(DATE, from, to)) %>%
-#     na.omit()
-#   return(df) }
-# source("scripts/downloadData.R") # Liège data were not imported for some reason, so just getting it directly from Sciensano here
-# data_hosp = hospit_byprovince(from=as.Date("2020-03-1"), to=Sys.Date())
-data_hosp = read.csv("https://epistat.sciensano.be/Data/COVID19BE_HOSP.csv", encoding="UTF-8")
+source("scripts/downloadData.R")
+
+hospit_byprovince = function(from=as.Date("2020-07-1"),
+                             to=Sys.Date()) {
+  from = as.Date(from)
+  to = as.Date(to)
+  df = rawhospit %>%
+    mutate(DATE = as.Date(DATE)) %>%
+    filter(#REGION != "Belgium", # & PROVINCE != "All",
+      between(DATE, from, to)) %>%
+    na.omit()
+  return(df) }
+data_hosp = hospit_byprovince(from=as.Date("2020-03-1"), to=Sys.Date())
+data_hosp_total = data_hosp[data_hosp$PROVINCE=="All"&data_hosp$REGION=="Belgium",]
+data_hosp_prov = data_hosp[data_hosp$PROVINCE!="All",]
+
 s = aggregate(data_hosp$TOTAL_IN, by=list(PROVINCE=data_hosp$PROVINCE), FUN=sum)
 data_hosp$PROVINCE = as.factor(data_hosp$PROVINCE) 
 data_hosp$PROVINCE = factor(data_hosp$PROVINCE, levels=s$PROVINCE[order(s$x)]) # order by total nr of hospitalisations
-data_hosp_prov = data_hosp[data_hosp$PROVINCE!="All",]
-# data_hosp_total = data_hosp[data_hosp$PROVINCE=="All"&data_hosp$REGION=="Belgium",]
 
 library(mgcv)
 library(splines)

@@ -100,6 +100,7 @@ replacefile(rawmunicipalities,
 
 ## Combine cases, tests, hospitalisations and deaths by date and region
 message("Combining data sets and saving.")
+# rawcases = rawcases[complete.cases(rawcases),]
 casetemp <- filter(rawcases, PROVINCE == "All" & SEX == "All" &
                      AGEGROUP == "All") %>%
   select(-c(SEX, PROVINCE, AGEGROUP))
@@ -114,8 +115,8 @@ deathtemp <- filter(rawdeaths, SEX == "All" & AGEGROUP == "All") %>%
   select(-c(SEX, AGEGROUP))
 
 regionalweekavg <- full_join(casetemp,
-                          testtemp,
-                          by = c("REGION","DATE")) %>%
+                             testtemp,
+                             by = c("REGION","DATE")) %>%
   full_join(hosptemp, by = c("REGION","DATE")) %>%
   full_join(deathtemp, by = c("REGION","DATE")) %>%
   filter(as.Date(DATE) >= as.Date("2020-03-15")) %>%
@@ -150,4 +151,3 @@ replacefile(regionalweekavg,
             "rds",
             "Processed")
 message("Succes!")
-
