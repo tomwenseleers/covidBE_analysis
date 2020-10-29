@@ -1,9 +1,10 @@
 # This script loads the data
 source("scripts/checkPackages.R")
-source("functions/refresh.R")
-source("functions/helperfunctions.R")
-source("functions/add_totals.R")
-source("functions/namesfunctions.R")
+thefuns <- dir("functions", pattern = "\\.R")
+for(i in thefuns){
+  source(file.path("functions",i))
+}
+
 
 if(!dir.exists("Processed")) dir.create("Processed")
 #--------------------------------------
@@ -87,15 +88,15 @@ rawmunicipalities <- refresh("municipalities",
          binned,DATE) %>%
   na.omit()
   
-saveRDS(rawmunicipalities,
-        file = file.path("Processed",
-                         stamp("binnedmunty",".RDS")))
+replacefile(rawmunicipalities,
+            "binnedmunty",
+            "rds",
+            "Processed")
 
 #--------------------------------------
 # Combine the raw datasets into a number of separate 
 # datasets that can be used for analysis.
 # Smooth the data using a 7 day window where possible.
-
 
 ## Combine cases, tests, hospitalisations and deaths by date and region
 message("Combining data sets and saving.")
@@ -112,7 +113,7 @@ hosptemp <- filter(rawhospit, PROVINCE == "All") %>%
 deathtemp <- filter(rawdeaths, SEX == "All" & AGEGROUP == "All") %>%
   select(-c(SEX, AGEGROUP))
 
-regionalsmooth <- full_join(casetemp,
+regionalweekavg <- full_join(casetemp,
                           testtemp,
                           by = c("REGION","DATE")) %>%
   full_join(hosptemp, by = c("REGION","DATE")) %>%
@@ -121,7 +122,7 @@ regionalsmooth <- full_join(casetemp,
   mutate(across(where(is.numeric),replaceby0)) %>%
   group_by(REGION) %>%
   mutate(across(where(is.numeric),
-                ~ zoo::rollmean(., 7, align = "right", fill = NA))) %>%
+                ~ zoo::rollmean(., 7, align = "right", fill = NA)))  %>%
   mutate(POSRATE = TESTS_ALL/TESTS_ALL_POS,
          CHANGE_CASES = changeabsolute(CASES),
          CHANGE_TESTS = changeabsolute(TESTS_ALL),
@@ -144,8 +145,9 @@ regionalsmooth <- full_join(casetemp,
 #                 ~ zoo::rollmean(., 7, align = "right", fill = NA)))
 
 
-
-saveRDS(regionalsmooth, file = file.path("Processed",
-                                         stamp("regionalsmooth",".RDS")))
+replacefile(regionalweekavg,
+            "regionalweekavg",
+            "rds",
+            "Processed")
 message("Succes!")
 
