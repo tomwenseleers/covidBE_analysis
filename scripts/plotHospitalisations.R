@@ -1,6 +1,6 @@
 # PLOTS OF HOSPITALISATIONS & EXTRAPOLATIONS ####
 # author: Tom Wenseleers
-# Date last modified: 2020-10-24
+# Date last modified: 2020-10-29
 
 # stacked column plot of hospitalisations over time in different provinces on a linear scale
 
@@ -28,13 +28,15 @@ library(splines)
 data_hosp_prov$DATE = as.Date(data_hosp_prov$DATE)
 data_hosp_prov$DATE_NUM = as.numeric(data_hosp_prov$DATE)
 data_hosp_prov$WEEKDAY = as.factor(weekdays(as.Date(data_hosp_prov$DATE)))
-fit_totalin = gam(TOTAL_IN ~ s(DATE_NUM, by=PROVINCE, bs="ad", m=c(3,2,1,0)) + PROVINCE + WEEKDAY, # or m=NA for default
+# data_hosp_prov = data_hosp_prov[data_hosp_prov$DATE_NUM!=max(data_hosp_prov$DATE_NUM),] # leave out last day (incomplete)
+
+fit_totalin = gam(TOTAL_IN ~ s(DATE_NUM, by=PROVINCE, bs="ad") + PROVINCE + WEEKDAY, # m=NA for default, or m=c(3,2,1,0)
                   family=poisson, data=data_hosp_prov) 
 # we could also contemplate gamm model with correlation=corAR1() or corAR1(form = ~ 1 | PROVINCE) or
 # a Poisson GLM with TOTAL_IN ~ ns(DATE_NUM,df=20)*PROVINCE+WEEKDAY
 # see https://fromthebottomoftheheap.net/2020/06/03/extrapolating-with-gams/ for 
 # some nice tests on extrapolating with GAMs
-fit_totalinicu = gam(TOTAL_IN_ICU ~ s(DATE_NUM,by=PROVINCE,bs="ad", m=c(3,2,1,0))+PROVINCE+WEEKDAY, # or m=NA for default
+fit_totalinicu = gam(TOTAL_IN_ICU ~ s(DATE_NUM,by=PROVINCE,bs="ad")+PROVINCE+WEEKDAY, # or m=NA for default, or m=c(3,2,1,0)
                   family=poisson, data=data_hosp_prov) 
 # calculate expected marginal means over average weekday + make extrapolations
 library(emmeans)
@@ -68,6 +70,8 @@ data_hosp_prov2$EXTRAPOLATED = relevel(factor(ifelse(data_hosp_prov2$DATE_NUM>=m
 data_hosp_prov2$TOTAL_IN[is.na(data_hosp_prov2$TOTAL_IN)] = 0 
 data_hosp_prov2$TOTAL_IN_ICU[is.na(data_hosp_prov2$TOTAL_IN_ICU)] = 0 
 
+library(ggplot2)
+library(ggthemes)
 # plot of total nr of hospitalised patients
 plot_hosp = ggplot(data=data_hosp_prov2, aes(x=DATE, y=TOTAL_IN+1)) + 
   geom_area(aes(y=TOTAL_IN_SMOOTH, colour=NULL, fill=PROVINCE, alpha=EXTRAPOLATED)) +
@@ -127,4 +131,5 @@ ggsave("ICU_by_province_stacked.png", width = 7, height = 5)
 
 library(ggpubr)
 ggarrange(plot_hosp, plot_icu, ncol=1, common.legend=TRUE, legend="bottom")
-ggsave("hospitalisations_ICU_by_province_stacked.png", width=7, height=10)
+ggsave("hospitalisations_ICU_by_province_stacked.png", width=8, height=11)
+ggsave("hospitalisations_ICU_by_province_stacked.pdf", width=8, height=11)
